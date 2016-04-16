@@ -1,0 +1,10 @@
+db:
+  image: postgres:9.5
+
+cron:
+  build: .
+  links:
+    - db
+  volumes:
+    - "./cron/dumps/:/cron/dumps/"
+    - "./cron/log:/cron/log"
