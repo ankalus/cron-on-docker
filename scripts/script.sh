@@ -1,4 +1,5 @@
 #!/bin/bash
+# Dump whole postgres database
 
 DUMP_DIR="/cron/dumps/"
 DUMP_PATH=$DUMP_DIR$(date +"%Y-%m-%d-dump.sql")
