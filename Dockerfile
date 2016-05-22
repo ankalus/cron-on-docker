@@ -1,28 +1,23 @@
-FROM ubuntu:xenial
+FROM alpine:edge
 MAINTAINER Grzegorz Wiciak <grzegorz@wiciak.com>
 
 # Setup timezone
-RUN ln -sf /usr/share/zoneinfo/CET /etc/localtime
+RUN apk add --update tzdata && rm -rf /var/cache/apk/*
+RUN cp /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
+RUN echo "Europe/Warsaw" >  /etc/timezone
+RUN apk del tzdata
 
-# Install cron
-RUN apt-get update && apt-get install -y cron
-
-# Add some useful software
-RUN apt-get update && apt-get install -y wget
-RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > \
-  /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
-  apt-key add -
-RUN apt-get update && apt-get install -y postgresql-client-9.5
+# Install bash && database client
+RUN apk add --update bash postgresql && rm -rf /var/cache/apk/*
 
 # Add script to container
 COPY ./scripts /cron/scripts
 RUN chmod -R +x /cron/scripts
 
 # Setup cron tasks
-COPY ./crontab /etc/crontab
+COPY ./crontab /etc/crontabs/root
 # Set proper permissions for crontab
-RUN chmod 600 /etc/crontab
+RUN chmod 600 /etc/crontabs/root
 
 # Run the command on container startup
-CMD ["cron", "-f"]
+CMD ["crond", "-f"]
